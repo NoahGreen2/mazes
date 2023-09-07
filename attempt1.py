@@ -1,6 +1,6 @@
 import random
 from tkinter import *
-import math
+import time
 
 # Create a window
 win = Tk()
@@ -38,9 +38,9 @@ cell[3] = True
 def find_touching_cells(i, j):
     touching_cells = []
     for x in cells:
-        if x[0] == i and abs(x[1] - j) == 50:
+        if x[0] == i and abs(x[1] - j) == 50 and x[3] == False:
             touching_cells.append(x)
-        elif abs(x[0] - i) == 50 and x[1] == j:
+        elif abs(x[0] - i) == 50 and x[1] == j and x[3] == False:
             touching_cells.append(x)
     return touching_cells
 
@@ -50,6 +50,12 @@ def find_touching_wall(i, j):
             if x == y:
                 return x
 
+def step_back(l):
+    if find_touching_cells(visited[-l][0], visited[-l][1]):
+        recursion_sequence(visited[-l])
+    else:
+        step_back(l+1)
+
 def next_cell(touching_cells, cell):
     choices = []
     for x in touching_cells:
@@ -58,15 +64,20 @@ def next_cell(touching_cells, cell):
     if len(choices) != 0:
         next = random.choice(choices)
         c.delete(find_touching_wall(cell, next))
+        win.update()
+        time.sleep(0.1)
         next[3] = True
         return next
+    else:
+        step_back(1)
 
-n = 0
+visited = []
 
 def recursion_sequence(cell):
-    global n
-    n += 1
-    if n <= 10:
+    if cell not in visited:
+        visited.append(cell)
+    if len(visited) < 195:
+        print(len(visited))
         recursion_sequence(next_cell(find_touching_cells(cell[0], cell[1]), cell))
 
 recursion_sequence(cell)
