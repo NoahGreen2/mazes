@@ -2,16 +2,15 @@ import random
 from tkinter import *
 import time
 
-# Create a window
 win = Tk()
 win.geometry("800x800")
 win.title("Maze creater")
 
-# Create a canvas
 c = Canvas(win, width=800, height=800, bg="white")
 c.pack()
 
 walls = []
+
 for i in range(50, 751, 50):
     for j in range(50, 750, 50):
         walls.append(c.create_line(i, j, i, j+50))
@@ -20,6 +19,7 @@ for i in range(50, 750, 50):
         walls.append(c.create_line(i, j, i+50, j))
 
 cells = []
+
 for i in range(75, 726, 50):
     for j in range(75, 726, 50):
         connected_walls = []
@@ -76,10 +76,11 @@ visited = []
 def recursion_sequence(cell):
     if cell not in visited:
         visited.append(cell)
-    if len(visited) < 195:
+    if len(visited) < 196:
         recursion_sequence(next_cell(find_touching_cells(cell[0], cell[1]), cell))
 
 recursion_sequence(cell)
+
 for i in visited[-2][2]:
     c.itemconfig(i, fill="red")
 
