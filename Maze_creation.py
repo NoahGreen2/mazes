@@ -63,9 +63,12 @@ def next_cell(touching_cells, cell):
             choices.append(x)
     if len(choices) != 0:
         next = random.choice(choices)
-        c.delete(find_touching_wall(cell, next))
+        wall = find_touching_wall(cell, next)
+        c.delete(wall)
         win.update()
         time.sleep(0.1)
+        cell[2].remove(wall)
+        next[2].remove(wall)
         next[3] = True
         return next
     else:
@@ -79,9 +82,23 @@ def recursion_sequence(cell):
     if len(visited) < 196:
         recursion_sequence(next_cell(find_touching_cells(cell[0], cell[1]), cell))
 
-recursion_sequence(cell)
+def choose_end(visited):
+    choices = []
+    for cell in visited:
+        if len(cell[2]) == 3:
+            choices.append(cell)
+    furthest = 0
+    for cell in choices:
+        if cell[0] + cell[1] > furthest:
+            furthest = cell[0] + cell[1]
+            end = cell
+    for wall in end[2]:
+        c.itemconfig(wall, fill="green")
 
-for i in visited[-2][2]:
-    c.itemconfig(i, fill="red")
+recursion_sequence(cell)
+win.update()
+
+choose_end(visited[:-1])
+
 
 win.mainloop()
