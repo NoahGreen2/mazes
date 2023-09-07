@@ -77,9 +77,10 @@ def recursion_sequence(cell):
     if cell not in visited:
         visited.append(cell)
     if len(visited) < 195:
-        print(len(visited))
         recursion_sequence(next_cell(find_touching_cells(cell[0], cell[1]), cell))
 
 recursion_sequence(cell)
+for i in visited[-2][2]:
+    c.itemconfig(i, fill="red")
 
 win.mainloop()
