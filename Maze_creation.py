@@ -10,15 +10,9 @@ win.title("Maze creater")
 c = Canvas(win, width=800, height=800, bg="white")
 c.pack()
 
-img1 = Image.open("mouse.png").resize((50, 50), Image.ANTIALIAS)
-mouse_image = ImageTk.PhotoImage(img1)
-
-img2 = Image.open("cheese.png").resize((50, 50), Image.ANTIALIAS)
-cheese_image = ImageTk.PhotoImage(img2)
-
 wall_coords = []
 active_walls = []
-path_end = []
+path_lines = []
 
 for i in range(50, 751, 50):
     for j in range(50, 750, 50):
@@ -78,6 +72,8 @@ def next_cell(touching_cells, cell):
         next = random.choice(choices)
         wall = find_touching_wall(cell, next)
         c.delete(wall)
+        win.update()
+        time.sleep(0.03)
         cell[2].remove(wall)
         next[2].remove(wall)
         active_walls.remove(wall)
@@ -106,7 +102,6 @@ def choose_end(visited):
             end = cell
     for wall in end[2]:
         c.itemconfig(wall, fill="green", width=5)
-    c.create_image(end[0], end[1], image=cheese_image)
     return end
 
 recursion_sequence(cell)
@@ -114,7 +109,7 @@ win.update()
 
 
 
-def find_possible_paths(cell, path):
+def find_possible_paths(cell, path, end):
     possible_paths = []
     possible_connected_walls = []
     missing_walls = []
@@ -136,25 +131,26 @@ def find_possible_paths(cell, path):
             for x in cells:
                 if abs(x[1]-wall[1]) == 25 and x[0] == (wall[0] + wall[2])/2 and x != cell and x not in path and x[3] == True:
                     possible_paths.append(x)
-    return possible_paths
+    if end in possible_paths:
+        return [end]
+    else:
+        return possible_paths
 
 def loop_solve(cell, path, end):
-    for ball in path_end:
-        c.delete(ball)
-    path_end.append(c.create_image(cell[0], cell[1], image=mouse_image))
-    win.update()
-    time.sleep(0.1)
+    for line in path_lines:
+        c.delete(line)
     cell[3] = False
     path.append(cell)
+    for x in range(len(path)-1):
+        path_lines.append(c.create_line(path[x][0], path[x][1], path[x+1][0], path[x+1][1], fill="blue", width=5))
+    win.update()
+    time.sleep(0.0001)
     if cell != end:
-        possible_paths = find_possible_paths(cell, path)
+        possible_paths = find_possible_paths(cell, path, end)
         if possible_paths:
             loop_solve(possible_paths[0], path, end)
         else:
             loop_solve(path[-2], path[:-2], end)
-    else:
-        for x in range(len(path)-1):
-            c.create_line(path[x][0], path[x][1], path[x+1][0], path[x+1][1], fill="blue", width=5)
 
 def solve_maze(start, end):
     path = []
