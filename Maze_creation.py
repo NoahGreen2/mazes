@@ -1,6 +1,7 @@
 import random
 from tkinter import *
 import time
+from PIL import Image, ImageTk
 
 win = Tk()
 win.geometry("800x800")
@@ -9,8 +10,15 @@ win.title("Maze creater")
 c = Canvas(win, width=800, height=800, bg="white")
 c.pack()
 
+img1 = Image.open("mouse.png").resize((50, 50), Image.ANTIALIAS)
+mouse_image = ImageTk.PhotoImage(img1)
+
+img2 = Image.open("cheese.png").resize((50, 50), Image.ANTIALIAS)
+cheese_image = ImageTk.PhotoImage(img2)
+
 wall_coords = []
 active_walls = []
+path_end = []
 
 for i in range(50, 751, 50):
     for j in range(50, 750, 50):
@@ -37,7 +45,7 @@ for i in range(75, 726, 50):
 
 cell = cells[0]
 for i in cell[2]:
-    c.itemconfig(i, fill="red")
+    c.itemconfig(i, fill="red", width=5)
 cell[3] = True
 
 def find_touching_cells(i, j):
@@ -70,8 +78,6 @@ def next_cell(touching_cells, cell):
         next = random.choice(choices)
         wall = find_touching_wall(cell, next)
         c.delete(wall)
-        win.update()
-        time.sleep(0.05)
         cell[2].remove(wall)
         next[2].remove(wall)
         active_walls.remove(wall)
@@ -99,7 +105,8 @@ def choose_end(visited):
             furthest = cell[0] + cell[1]
             end = cell
     for wall in end[2]:
-        c.itemconfig(wall, fill="green")
+        c.itemconfig(wall, fill="green", width=5)
+    c.create_image(end[0], end[1], image=cheese_image)
     return end
 
 recursion_sequence(cell)
@@ -132,6 +139,11 @@ def find_possible_paths(cell, path):
     return possible_paths
 
 def loop_solve(cell, path, end):
+    for ball in path_end:
+        c.delete(ball)
+    path_end.append(c.create_image(cell[0], cell[1], image=mouse_image))
+    win.update()
+    time.sleep(0.1)
     cell[3] = False
     path.append(cell)
     if cell != end:
@@ -141,10 +153,8 @@ def loop_solve(cell, path, end):
         else:
             loop_solve(path[-2], path[:-2], end)
     else:
-        for cell in range(len(path)-1):
-            c.create_line(path[cell][0], path[cell][1], path[cell+1][0], path[cell+1][1], fill="blue")
-            win.update()
-            time.sleep(0.1)
+        for x in range(len(path)-1):
+            c.create_line(path[x][0], path[x][1], path[x+1][0], path[x+1][1], fill="blue", width=5)
 
 def solve_maze(start, end):
     path = []
